@@ -49,7 +49,10 @@ export const Helden: React.FC= () => {
                                 size="sm"
                                 className="ms-auto"
                                 variant="danger"
-                                onClick={() => dispatch(heldActions.removeHeld(idx))}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    dispatch(heldActions.removeHeld(idx))
+                                }}
                             >
                                 <FontAwesomeIcon
                                     title="Den Helden löschen"
