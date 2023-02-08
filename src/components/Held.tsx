@@ -1,13 +1,33 @@
 import React, { Fragment } from 'react';
 import { Card, Table, Row, Col } from 'react-bootstrap';
+import { IHeld } from '../store/held';
+import { useParams } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { TRootStore } from '../store/store';
+
+
+export const HeldIdx: React.FC = () => {
+    const { idx } = useParams();
+    const held = useSelector((store: TRootStore) => {
+        if (idx) {
+            return store.helden[Number(idx)];
+        }
+    });
+    if (!held) {
+        return null;
+    }
+    return (
+        <Held held={held} />
+    );
+};
+
 
 interface IHeldProps {
-    held: any;
+    held: IHeld;
     className?: string;
 }
 
 export const Held: React.FC<IHeldProps> = props => {
-    console.log(props.held);
     return (
         <Fragment>
             <Card className={props.className}>

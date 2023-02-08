@@ -3,9 +3,14 @@ import { Card, Container, Form } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { XMLParser, XMLValidator } from 'fast-xml-parser';
 import { Held } from './Held';
+import { IHeld } from '../store/held';
 
-export const NewHeld: React.FC = () => {
-    const [held, setHeld] = useState();
+interface INewHeldProps {
+    held?: IHeld;
+    onChange: (held: IHeld) => void;
+}
+
+export const NewHeld: React.FC<INewHeldProps> = props => {
     const dataHandler = (data: string): string => {
         const parser = new XMLParser({
             ignoreAttributes : false
@@ -15,7 +20,7 @@ export const NewHeld: React.FC = () => {
         });
         if (result === true) {
             const held = parser.parse(data);
-            setHeld(held.helden.held);
+            props.onChange(held.helden.held);
             return '';
         } else {
             return result.err.msg;
@@ -29,7 +34,7 @@ export const NewHeld: React.FC = () => {
                 description="Lade ein XML file der helden software hier hoch."
                 dataHandler={dataHandler}
             />
-            {held && (<Held className="mt-3" held={held} />)}
+            {props.held && (<Held className="mt-3" held={props.held} />)}
         </Container>
     );
 }
