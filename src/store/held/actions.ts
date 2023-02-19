@@ -1,9 +1,10 @@
-import { ADD_HELD, REMOVE_HELD, SET_HELDEN, IHeld, TActionHeld } from '.';
+import { ADD_HELD, REMOVE_HELD, SET_HELDEN, SET_HELD_STATE, IHeld, TActionHeld, THeldState } from '.';
 
 export const heldActions = {
     addHeld,
     removeHeld,
-    setHelden
+    setHelden,
+    setHeldState
 };
 
 function addHeld(
@@ -16,7 +17,7 @@ function addHeld(
 }
 
 function removeHeld(
-    idx: number
+    idx: string
 ): TActionHeld {
     return {
         type: REMOVE_HELD,
@@ -30,5 +31,12 @@ function setHelden(
     return {
         type: SET_HELDEN,
         payload: helden
+    };
+}
+
+function setHeldState(id: string, state: THeldState): TActionHeld {
+    return {
+        type: SET_HELD_STATE,
+        payload: { id, state }
     };
 }

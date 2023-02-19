@@ -1,6 +1,11 @@
 export const ADD_HELD = 'ADD_HELD';
 export const REMOVE_HELD = 'REMOVE_HELD';
 export const SET_HELDEN = 'SET_HELDEN';
+export const SELECT_HELD = 'SELECT_HELD';
+export const DESELECT_HELD = 'DESELECT_HELD';
+export const SET_HELD_STATE = 'SET_HELD_STATE';
+
+export type THeldState = 'new' | 'active' | 'inactive'
 
 interface IActionAddHeld {
     type: typeof ADD_HELD;
@@ -9,7 +14,15 @@ interface IActionAddHeld {
 
 interface IActionRemoveHeld {
     type: typeof REMOVE_HELD;
-    payload: number;
+    payload: string;
+}
+
+interface IActionSetHeldState {
+    type: typeof SET_HELD_STATE;
+    payload: {
+        id: string;
+        state: THeldState;
+    }
 }
 
 interface IActionSetHelden {
@@ -20,12 +33,46 @@ interface IActionSetHelden {
 export type TActionHeld =
     | IActionAddHeld
     | IActionRemoveHeld
-    | IActionSetHelden;
+    | IActionSetHelden
+    | IActionSetHeldState;
+
+export interface IMeta {
+    state: THeldState;
+    attrBase: IAttrBase;
+    attrExt: IAttrExt;
+}
+
+export interface IAttrBase {
+    MU: IMetaAttr;
+    KL: IMetaAttr;
+    IN: IMetaAttr;
+    CH: IMetaAttr;
+    FF: IMetaAttr;
+    GE: IMetaAttr;
+    KO: IMetaAttr;
+    KK: IMetaAttr;
+    SO: IMetaAttr;
+}
+
+export interface IAttrExt {
+    MR: IMetaAttr;
+    LE: IMetaAttr;
+    AU: IMetaAttr;
+    AE: IMetaAttr;
+    KE: IMetaAttr;
+}
+
+export interface IMetaAttr {
+    value: number;
+    mod: number;
+    base: IEigenschaft;
+}
 
 export interface IHeld extends INameField {
     '@_key': string;
     '@_stand': string;
     mods: string;
+    meta: IMeta;
     basis: IBasis;
     eigenschaften: {
         eigenschaft: IEigenschaft[];
@@ -123,7 +170,7 @@ interface IBasis {
     gilde: INameField;
 }
 
-interface IEigenschaft extends IValueField, INameField {
+export interface IEigenschaft extends IValueField, INameField {
     '@_mod': string;
     '@_startwert'?: string;
     '@_grossemeditation'?: string;

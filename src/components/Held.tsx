@@ -1,18 +1,23 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useEffect } from 'react';
 import { Card, Table, Row, Col } from 'react-bootstrap';
-import { IHeld } from '../store/held';
+import { IHeld, heldActions } from '../store/held';
 import { useParams } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { TRootStore } from '../store/store';
 
-
 export const HeldIdx: React.FC = () => {
+    const dispatch = useDispatch();
     const { idx } = useParams();
     const held = useSelector((store: TRootStore) => {
         if (idx) {
             return store.helden[Number(idx)];
         }
     });
+    useEffect(() => {
+        if (held) {
+            dispatch(heldActions.setHeldState(held['@_key'], 'inactive'));
+        }
+    }, [dispatch, held])
     if (!held) {
         return null;
     }
