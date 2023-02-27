@@ -1,16 +1,17 @@
-import React, { useState } from 'react';
+import React, { Fragment, useState } from 'react';
 import { Alert, Button, Container, Card, Row, Col, ListGroup } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { TRootStore } from '../store/store';
 import { heldActions } from '../store/held';
-import { HeldenSummary } from './Helden';
+import { HeldenSummary, TalentSearch, TalentProbabilities } from './Helden';
 
 export const Home: React.FC = () => {
     const dispatch = useDispatch();
     const helden = useSelector((store: TRootStore) => store.helden);
     const heldenActive = helden.filter(item => item.meta.state === 'active');
     const heldenInactive = helden.filter(item => item.meta.state !== 'active');
+    const [selection, setSelection] = useState("");
     return (
         <Container fluid>
             <Row className="mb-3">
@@ -46,6 +47,18 @@ export const Home: React.FC = () => {
                             )}
                         </Card.Body>
                     </Card>
+                    {heldenActive.length > 0 && (
+                        <Card className="mt-3">
+                            <Card.Body>
+                                <TalentSearch
+                                    helden={heldenActive}
+                                    onSelect={(item) => setSelection(item)}
+                                />
+                                {selection !== "" && (<h1>{selection}</h1>)}
+                                <TalentProbabilities helden={heldenActive} talent={selection} />
+                            </Card.Body>
+                        </Card>
+                    )}
                 </Col>
                 {helden.length > 0 && (
                     <Col sm="auto">

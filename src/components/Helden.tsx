@@ -1,8 +1,8 @@
 import React, { Fragment, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Table, Alert, Modal, Button, ListGroup } from 'react-bootstrap';
+import { Card, Form, Table, Alert, Modal, Button, ListGroup, Dropdown } from 'react-bootstrap';
 import { NewHeld } from './NewHeld';
-import { IHeld, IEigenschaft, IMetaAttr, IAttrBase, IAttrExt, heldActions } from '../store/held';
+import { ITalent, IHeld, IEigenschaft, IMetaAttr, IAttrBase, IAttrExt, heldActions } from '../store/held';
 import { TRootStore } from '../store/store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { LinkContainer } from 'react-router-bootstrap';
@@ -179,5 +179,180 @@ export const HeldenSummary: React.FC<IHeldenSummaryProps> = (props) => {
                 )}
             </tbody>
         </Table>
+    );
+}
+
+interface ITalentSearchProps {
+    helden: IHeld[];
+    onSelect: (item: string) => void;
+}
+
+export const TalentSearch: React.FC<ITalentSearchProps> = (props) => {
+    const [search, setSearch] = useState("");
+    const [activeIdx, setActiveIdx] = useState<number>();
+    const talente = props.helden
+        .map(held => held.talentliste.talent.map(talent => talent['@_name']))
+        .reduce((prev, next) => prev.concat(next), []);
+    const list = Array.from(new Set(talente.filter(talent => search.length > 1 && talent.toLowerCase().includes(search.toLowerCase()))));
+    const selectItem = (item: string) => {
+        props.onSelect(item);
+        setActiveIdx(undefined);
+        setSearch("");
+    };
+    return (
+        <Fragment>
+            <div className="mb-3 d-flex justify-content-between">
+                <SearchPreset
+                    item="Sinnenschärfe"
+                    onSelect={(item) => props.onSelect(item)}
+                />
+                <SearchPreset
+                    item="Schleichen"
+                    onSelect={(item) => props.onSelect(item)}
+                />
+                <SearchPreset
+                    item="Sich verstecken"
+                    onSelect={(item) => props.onSelect(item)}
+                />
+                <SearchPreset
+                    item="Klettern"
+                    onSelect={(item) => props.onSelect(item)}
+                />
+                <SearchPreset
+                    item="Selbstbeherrschung"
+                    onSelect={(item) => props.onSelect(item)}
+                />
+                <SearchPreset
+                    item="Körperbeherrschung"
+                    onSelect={(item) => props.onSelect(item)}
+                />
+            </div>
+            <Form.Control
+                onKeyDown={(e) => {
+                    if (activeIdx === undefined) {
+                        setActiveIdx(0);
+                    }
+                    else
+                    {
+                        if (e.keyCode === 40) {
+                            if (activeIdx < list.length - 1) {
+                                setActiveIdx(activeIdx + 1);
+                            }
+                        } else if (e.keyCode === 38) {
+                            if (activeIdx > 0) {
+                                setActiveIdx(activeIdx - 1);
+                            }
+                        } else if (e.keyCode === 13) {
+                            selectItem(list[activeIdx]);
+                        } else if (e.keyCode === 27) {
+                            selectItem("");
+                        }
+                    }
+                }}
+                value={search}
+                type="text"
+                placeholder="Talent Suche"
+                onChange={(e) => setSearch(e.target.value)
+            }/>
+            <Dropdown
+                show={list.length > 0}
+                focusFirstItemOnShow="keyboard"
+            >
+                <Dropdown.Menu className="mt-1">
+                    {list.map((item, idx) =>
+                        <Dropdown.Item
+                            key={idx}
+                            active={idx === activeIdx}
+                            eventKey={item}
+                            onClick={() => selectItem(item)}
+                        >{item}</Dropdown.Item>)}
+                </Dropdown.Menu>
+            </Dropdown>
+        </Fragment>
+    );
+}
+
+interface ISearchPresetProps {
+    item: string;
+    onSelect: (item: string) => void;
+}
+
+const SearchPreset: React.FC<ISearchPresetProps> = (props) => {
+    return (
+        <Button variant="dark" onClick={() => props.onSelect(props.item)}>
+            {props.item}
+        </Button>
+    );
+}
+
+interface ITalentProbabilitiesProps {
+    helden: IHeld[];
+    talent: string;
+}
+
+export const TalentProbabilities: React.FC<ITalentProbabilitiesProps> = (props) => {
+    const compute_prob = (e1: number, e2: number, e3: number, pool: number) => {
+        var possible = 0;
+        if(pool < 0)
+        {
+            e1 += pool;
+            e2 += pool;
+            e3 += pool;
+            pool = 0;
+        }
+        var required;
+        for(var i=1; i<=20; i++) {
+            for(var j=1; j<=20; j++) {
+                for(var k=1; k<=20; k++) {
+                    if((i == 20 && j == 20)
+                        || (i == 20 && k == 20)
+                        || (j == 20 && k == 20))
+                        continue;
+                    if((i == 1 && j == 1)
+                        || (i == 1 && k == 1)
+                        || (j == 1 && k == 1))
+                    {
+                        possible++;
+                        continue;
+                    }
+                    required = 0;
+                    if(i > e1)
+                        required += (i - e1);
+                    if(j > e2)
+                        required += (j - e2);
+                    if(k > e3)
+                        required += (k - e3);
+                    if(required <= pool)
+                        possible++;
+                }
+            }
+        }
+        return 100*possible/8000;
+    }
+    const compute_prob_from_talent = (talent: ITalent, base: IAttrBase) => {
+        const eigs = talent['@_probe'].match(/\((..)\/(..)\/(..)\)/);
+        if (eigs && eigs[1] in base && eigs[2] in base && eigs[3] in base) {
+            return compute_prob(
+                base[eigs[1] as keyof IAttrBase].value,
+                base[eigs[2] as keyof IAttrBase].value,
+                base[eigs[3] as keyof IAttrBase].value,
+                Number(talent['@_value']))
+        }
+        return 0;
+    };
+    const items = props.helden
+        .map(held => ({
+            talent: held.talentliste.talent.find(talent => talent['@_name'] === props.talent),
+            base: held.meta.attrBase
+        }))
+
+    return (
+        <Card>
+            <Card.Body>
+                {items.map((item, idx) =>
+                    (item.talent && <div key={idx}>{compute_prob_from_talent(item.talent, item.base)}</div>)
+                )}
+            </Card.Body>
+        </Card>
     );
 }

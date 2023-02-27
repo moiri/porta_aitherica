@@ -196,7 +196,7 @@ interface IZauberSpez extends INameField {
     '@_variante': string;
 }
 
-interface ITalent extends IProbe, Partial<IKField> {
+export interface ITalent extends IProbe, Partial<IKField> {
     '@_be'?: string;
 }
 

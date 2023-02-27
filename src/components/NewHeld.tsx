@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { Card, Container, Form } from 'react-bootstrap';
+import { Container, Form } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { XMLParser, XMLValidator } from 'fast-xml-parser';
 import { Held } from './Held';

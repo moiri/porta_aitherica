@@ -3,7 +3,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { fas } from '@fortawesome/free-solid-svg-icons';
 import { library, IconPack } from '@fortawesome/fontawesome-svg-core';
 import { Routes, Route } from 'react-router-dom';
-import { Container } from 'react-bootstrap';
 import { Home } from './components/Home';
 import { Helden } from './components/Helden';
 import { HeldIdx } from './components/Held';
