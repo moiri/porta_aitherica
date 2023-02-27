@@ -301,28 +301,28 @@ export const TalentProbabilities: React.FC<ITalentProbabilitiesProps> = (props) 
             pool = 0;
         }
         var required;
-        for(var i=1; i<=20; i++) {
-            for(var j=1; j<=20; j++) {
-                for(var k=1; k<=20; k++) {
-                    if((i == 20 && j == 20)
-                        || (i == 20 && k == 20)
-                        || (j == 20 && k == 20))
+        for (let i = 1; i <= 20; i++) {
+            for (let j = 1; j <= 20; j++) {
+                for (let k = 1; k <= 20; k++) {
+                    if ((i === 20 && j === 20)
+                        || (i === 20 && k === 20)
+                        || (j === 20 && k === 20))
                         continue;
-                    if((i == 1 && j == 1)
-                        || (i == 1 && k == 1)
-                        || (j == 1 && k == 1))
+                    if ((i === 1 && j === 1)
+                        || (i === 1 && k === 1)
+                        || (j === 1 && k === 1))
                     {
                         possible++;
                         continue;
                     }
                     required = 0;
-                    if(i > e1)
+                    if (i > e1)
                         required += (i - e1);
-                    if(j > e2)
+                    if (j > e2)
                         required += (j - e2);
-                    if(k > e3)
+                    if (k > e3)
                         required += (k - e3);
-                    if(required <= pool)
+                    if (required <= pool)
                         possible++;
                 }
             }
