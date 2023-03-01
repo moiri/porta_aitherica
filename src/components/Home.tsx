@@ -11,7 +11,6 @@ export const Home: React.FC = () => {
     const helden = useSelector((store: TRootStore) => store.helden);
     const heldenActive = helden.filter(item => item.meta.state === 'active');
     const heldenInactive = helden.filter(item => item.meta.state !== 'active');
-    const [selection, setSelection] = useState("");
     return (
         <Container fluid>
             <Row className="mb-3">
@@ -25,7 +24,14 @@ export const Home: React.FC = () => {
             </Row>
             <Row className="mb-3">
                 <Col>
-                    <Card>
+                    {heldenActive.length > 0 && (
+                        <Card>
+                            <Card.Body>
+                                <TalentProbabilities helden={heldenActive} />
+                            </Card.Body>
+                        </Card>
+                    )}
+                    <Card className="mt-3">
                         <Card.Body>
                             {helden.length === 0 && (
                                 <Alert variant="warning" className="mb-0 d-flex align-items-center">
@@ -47,18 +53,6 @@ export const Home: React.FC = () => {
                             )}
                         </Card.Body>
                     </Card>
-                    {heldenActive.length > 0 && (
-                        <Card className="mt-3">
-                            <Card.Body>
-                                <TalentSearch
-                                    helden={heldenActive}
-                                    onSelect={(item) => setSelection(item)}
-                                />
-                                {selection !== "" && (<h1>{selection}</h1>)}
-                                <TalentProbabilities helden={heldenActive} talent={selection} />
-                            </Card.Body>
-                        </Card>
-                    )}
                 </Col>
                 {helden.length > 0 && (
                     <Col sm="auto">

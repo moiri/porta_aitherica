@@ -1,11 +1,21 @@
 import React, { Fragment, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Card, Form, Table, Alert, Modal, Button, ListGroup, Dropdown } from 'react-bootstrap';
+import { Row, Col, Card, Form, Table, Alert, Modal, Button, ListGroup, Dropdown } from 'react-bootstrap';
 import { NewHeld } from './NewHeld';
 import { ITalent, IHeld, IEigenschaft, IMetaAttr, IAttrBase, IAttrExt, heldActions } from '../store/held';
 import { TRootStore } from '../store/store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { LinkContainer } from 'react-router-bootstrap';
+import { Plugin, Chart, CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend } from 'chart.js';
+import { Line } from 'react-chartjs-2';
+
+Chart.register(
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    Tooltip
+);
 
 export const Helden: React.FC= () => {
     const dispatch = useDispatch();
@@ -201,7 +211,7 @@ export const TalentSearch: React.FC<ITalentSearchProps> = (props) => {
     };
     return (
         <Fragment>
-            <div className="mb-3 d-flex justify-content-between">
+            <div className="mb-3">
                 <SearchPreset
                     item="Sinnenschärfe"
                     onSelect={(item) => props.onSelect(item)}
@@ -279,18 +289,42 @@ interface ISearchPresetProps {
 
 const SearchPreset: React.FC<ISearchPresetProps> = (props) => {
     return (
-        <Button variant="dark" onClick={() => props.onSelect(props.item)}>
-            {props.item}
-        </Button>
+        <div className="mb-1">
+            <Button className="w-100" variant="dark" onClick={() => props.onSelect(props.item)}>
+                {props.item}
+            </Button>
+        </div>
+    );
+}
+
+interface ITalentHeldSelectorProps {
+    handler: () => void;
+    style: any;
+    children: React.ReactNode;
+}
+
+const TalentHeldSelector: React.FC<ITalentHeldSelectorProps> = (props) => {
+    return (
+        <div className="mb-1">
+            <Button
+                className="w-100"
+                style={props.style}
+                onClick={() => props.handler()}
+            >
+                {props.children}
+            </Button>
+        </div>
     );
 }
 
 interface ITalentProbabilitiesProps {
     helden: IHeld[];
-    talent: string;
+    className?: string;
 }
 
 export const TalentProbabilities: React.FC<ITalentProbabilitiesProps> = (props) => {
+    const [show, setShow] = useState<boolean[]>([...props.helden.map(item => true), true, true]);
+    const [talent, setTalent] = useState("");
     const compute_prob = (e1: number, e2: number, e3: number, pool: number) => {
         var possible = 0;
         if(pool < 0)
@@ -329,30 +363,178 @@ export const TalentProbabilities: React.FC<ITalentProbabilitiesProps> = (props) 
         }
         return 100*possible/8000;
     }
-    const compute_prob_from_talent = (talent: ITalent, base: IAttrBase) => {
+
+    const compute_prob_arr = (value: number, e1: number, e2: number, e3: number, mod: number, tap: number, max: number) => {
+        var prob = [];
+        if (tap === 1) {
+            tap = 0;
+        }
+        for (let i = -max; i <= max; i++) {
+            const mod_var = mod + i;
+            const taw = value - mod_var;
+            const taw_open = (mod_var > 0) ? value - mod_var : value;
+            if(tap > 0 && taw_open < tap)
+                prob.push(0);
+            else
+                prob.push(compute_prob(e1, e2, e3, taw - tap));
+        }
+        return prob;
+    };
+    const compute_prob_from_talent = (talent: ITalent, base: IAttrBase, max: number) => {
         const eigs = talent['@_probe'].match(/\((..)\/(..)\/(..)\)/);
         if (eigs && eigs[1] in base && eigs[2] in base && eigs[3] in base) {
-            return compute_prob(
+            return compute_prob_arr(
+                Number(talent['@_value']),
                 base[eigs[1] as keyof IAttrBase].value,
                 base[eigs[2] as keyof IAttrBase].value,
                 base[eigs[3] as keyof IAttrBase].value,
-                Number(talent['@_value']))
+                0, 0, max
+            );
         }
         return 0;
     };
+
+    const colors = ["#fd7f6f", "#7eb0d5", "#b2e061", "#bd7ebe", "#ffb55a", "#ffee65", "#beb9db", "#fdcce5", "#8bd3c7"];
+
     const items = props.helden
-        .map(held => ({
-            talent: held.talentliste.talent.find(talent => talent['@_name'] === props.talent),
-            base: held.meta.attrBase
-        }))
+        .map((held, idx) => ({
+            talent: held.talentliste.talent.find(item => item['@_name'] === talent),
+            base: held.meta.attrBase,
+            name: held['@_name'],
+            color: colors[idx % colors.length]
+        }));
+
+    const max = 10;
+
+    // const colors = [ '#003f5c', '#2f4b7c', '#665191', '#a05195', '#d45087', '#f95d6a', '#ff7c43', '#ffa600' ];
+
+    const getStyle = (idx: number, color: string) => {
+        if (show[idx]) {
+            return {
+                backgroundColor: color,
+                borderColor: color,
+            }
+        } else {
+            return {
+                backgroundColor: 'transparent',
+                borderColor: color,
+                color: color
+            }
+        }
+    }
+
+    const pointRadius = [...Array(2*max+1)].map((item, idx) => (max - Math.abs(idx - max))/max * 5 + 2);
+
+    const datasets = items
+        .filter((item, idx) => item.talent !== undefined && show[idx] )
+        .map((item, idx) => ({
+            label: item.name,
+            data: compute_prob_from_talent(item.talent as ITalent, item.base, max) as number[],
+            borderColor: item.color,
+            backgroundColor: item.color,
+            fill: false,
+            pointRadius: pointRadius
+        }));
+
+    const allFail = datasets
+                .reduce((prev, val) => prev.map((item, idx) => item * (1 - val.data[idx]/100)), Array<number>(2*max+1).fill(1));
+    const allSucceed = datasets
+                .reduce((prev, val) => prev.map((item, idx) => item * val.data[idx]/100), Array<number>(2*max+1).fill(1));
+
+    if (show[items.length]) {
+        datasets.push({
+            label: 'alle Helden',
+            data: allSucceed
+                .map(item => (item)*100),
+            borderColor: 'black',
+            backgroundColor: 'black',
+            fill: false,
+            pointRadius: pointRadius
+        });
+    }
+
+    if (show[items.length + 1]) {
+        datasets.push({
+            label: 'mind 1 Held',
+            data: allFail
+                .map(item => (1 - item)*100),
+            borderColor: 'black',
+            backgroundColor: 'black',
+            fill: false,
+            pointRadius: pointRadius
+        });
+    }
+
+    const handler = (idx: number) => {
+        const newShow = [...show];
+        newShow[idx] = !show[idx];
+        setShow(newShow);
+    }
 
     return (
-        <Card>
-            <Card.Body>
-                {items.map((item, idx) =>
-                    (item.talent && <div key={idx}>{compute_prob_from_talent(item.talent, item.base)}</div>)
-                )}
-            </Card.Body>
-        </Card>
+        <Row className={props.className}>
+            <Col sm="auto">
+                <TalentSearch
+                    helden={props.helden}
+                    onSelect={(item) => setTalent(item)}
+                />
+            </Col>
+            {talent === "" && (
+                <Col>
+                    <Alert className="mb-0" variant="dark">Wähle ein Talent</Alert>
+                </Col>
+            )}
+            {talent !== "" && (
+                <Col>
+                    <Card>
+                        <Card.Header>
+                            <h3 className="mb-0">{talent}</h3>
+                        </Card.Header>
+                        <Card.Body>
+                            <Line
+                                className="mt-3"
+                                options={{
+                                    scales: {
+                                        y: {
+                                            min: 0,
+                                            max: 100,
+                                        }
+                                    }
+                                }}
+                                data={{
+                                    labels: [...Array(2*max+1)].map((item, idx) => `${idx > max ? '+' : ''}${-max + idx}`),
+                                    datasets: datasets
+                                }}
+                            />
+                        </Card.Body>
+                    </Card>
+                </Col>
+            )}
+            {talent !== "" && (
+                <Col sm="auto">
+                    <TalentHeldSelector
+                        handler={() => handler(items.length + 1)}
+                        style={getStyle(items.length + 1, 'black')}
+                    >
+                        Mindestens ein Held
+                    </TalentHeldSelector>
+                    {items.map((item, idx) =>
+                        <TalentHeldSelector
+                            key={idx}
+                            handler={() => handler(idx)}
+                            style={getStyle(idx, item.color)}
+                        >
+                            {item.name}
+                        </TalentHeldSelector>
+                    )}
+                    <TalentHeldSelector
+                        handler={() => handler(items.length)}
+                        style={getStyle(items.length, 'black')}
+                    >
+                        Alle Helden
+                    </TalentHeldSelector>
+                </Col>
+            )}
+        </Row>
     );
 }
