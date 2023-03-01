@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Row, Col, Card, Form, Table, Alert, Modal, Button, ListGroup, Dropdown } from 'react-bootstrap';
 import { NewHeld } from './NewHeld';
@@ -305,15 +305,14 @@ interface ITalentHeldSelectorProps {
 
 const TalentHeldSelector: React.FC<ITalentHeldSelectorProps> = (props) => {
     return (
-        <div className="mb-1">
-            <Button
-                className="w-100"
-                style={props.style}
-                onClick={() => props.handler()}
-            >
-                {props.children}
-            </Button>
-        </div>
+        <Button
+            size="sm"
+            className="me-1"
+            style={props.style}
+            onClick={() => props.handler()}
+        >
+            {props.children}
+        </Button>
     );
 }
 
@@ -324,6 +323,9 @@ interface ITalentProbabilitiesProps {
 
 export const TalentProbabilities: React.FC<ITalentProbabilitiesProps> = (props) => {
     const [show, setShow] = useState<boolean[]>([...props.helden.map(item => true), true, true]);
+    useEffect(() => {
+        setShow([...props.helden.map(item => true), true, true]);
+    }, [props.helden]);
     const [talent, setTalent] = useState("");
     const compute_prob = (e1: number, e2: number, e3: number, pool: number) => {
         var possible = 0;
@@ -508,31 +510,29 @@ export const TalentProbabilities: React.FC<ITalentProbabilitiesProps> = (props) 
                             />
                         </Card.Body>
                     </Card>
-                </Col>
-            )}
-            {talent !== "" && (
-                <Col sm="auto">
-                    <TalentHeldSelector
-                        handler={() => handler(items.length + 1)}
-                        style={getStyle(items.length + 1, 'black')}
-                    >
-                        Mindestens ein Held
-                    </TalentHeldSelector>
-                    {items.map((item, idx) =>
+                    <div className="mt-1">
                         <TalentHeldSelector
-                            key={idx}
-                            handler={() => handler(idx)}
-                            style={getStyle(idx, item.color)}
+                            handler={() => handler(items.length + 1)}
+                            style={getStyle(items.length + 1, 'black')}
                         >
-                            {item.name}
+                            Mindestens ein Held
                         </TalentHeldSelector>
-                    )}
-                    <TalentHeldSelector
-                        handler={() => handler(items.length)}
-                        style={getStyle(items.length, 'black')}
-                    >
-                        Alle Helden
-                    </TalentHeldSelector>
+                        {items.map((item, idx) =>
+                            <TalentHeldSelector
+                                key={idx}
+                                handler={() => handler(idx)}
+                                style={getStyle(idx, item.color)}
+                            >
+                                {item.name}
+                            </TalentHeldSelector>
+                        )}
+                        <TalentHeldSelector
+                            handler={() => handler(items.length)}
+                            style={getStyle(items.length, 'black')}
+                        >
+                            Alle Helden
+                        </TalentHeldSelector>
+                    </div>
                 </Col>
             )}
         </Row>
