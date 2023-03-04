@@ -232,7 +232,7 @@ export const TalentProbabilities: React.FC<ITalentProbabilitiesProps> = (
                 }
             }
         }
-        return (100 * possible) / 8000;
+        return Math.round((100 * possible) / 8000);
     };
 
     const compute_prob_arr = (
@@ -347,7 +347,7 @@ export const TalentProbabilities: React.FC<ITalentProbabilitiesProps> = (
     if (showAll) {
         datasets.push({
             label: 'alle Helden',
-            data: allSucceed.map((item) => item * 100),
+            data: allSucceed.map((item) => Math.round(item * 100)),
             borderColor: 'black',
             backgroundColor: 'black',
             fill: false,
@@ -358,7 +358,7 @@ export const TalentProbabilities: React.FC<ITalentProbabilitiesProps> = (
     if (showAtLeastOne) {
         datasets.push({
             label: 'mind 1 Held',
-            data: allFail.map((item) => (1 - item) * 100),
+            data: allFail.map((item) => Math.round((1 - item) * 100)),
             borderColor: 'black',
             backgroundColor: 'black',
             fill: false,
@@ -395,6 +395,10 @@ export const TalentProbabilities: React.FC<ITalentProbabilitiesProps> = (
                             <Line
                                 className="mt-3"
                                 options={{
+                                    interaction: {
+                                        intersect: false,
+                                        mode: 'index'
+                                    },
                                     scales: {
                                         y: {
                                             min: 0,
