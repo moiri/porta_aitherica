@@ -15,23 +15,14 @@ export const Home: React.FC = () => {
         <Container fluid>
             <Row className="mb-3">
                 <Col>
-                    <Card>
-                        <Card.Body>
-                            <h1 className="mb-0 display-3">Helden Dash</h1>
-                        </Card.Body>
-                    </Card>
-                </Col>
-            </Row>
-            <Row className="mb-3">
-                <Col>
                     {heldenActive.length > 0 && (
-                        <Card>
+                        <Card className="mb-3">
                             <Card.Body>
                                 <TalentProbabilities helden={heldenActive} />
                             </Card.Body>
                         </Card>
                     )}
-                    <Card className="mt-3">
+                    <Card>
                         <Card.Body>
                             {helden.length === 0 && (
                                 <Alert variant="warning" className="mb-0 d-flex align-items-center">

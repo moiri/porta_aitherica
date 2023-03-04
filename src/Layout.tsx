@@ -10,7 +10,7 @@ export const Layout: React.FC = () => {
                 <Container fluid>
                     <LinkContainer to="/">
                         <Navbar.Brand>
-                            Dash
+                            Porta Aitherica
                         </Navbar.Brand>
                     </LinkContainer>
                     <Navbar.Toggle aria-controls="basic-navbar-nav" />
