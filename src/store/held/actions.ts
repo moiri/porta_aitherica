@@ -1,4 +1,12 @@
-import { ADD_HELD, REMOVE_HELD, SET_HELDEN, SET_HELD_STATE, IHeld, TActionHeld, THeldState } from '.';
+import {
+    ADD_HELD,
+    REMOVE_HELD,
+    SET_HELDEN,
+    SET_HELD_STATE,
+    IHeld,
+    TActionHeld,
+    THeldState
+} from '.';
 
 export const heldActions = {
     addHeld,
@@ -7,27 +15,21 @@ export const heldActions = {
     setHeldState
 };
 
-function addHeld(
-    held: IHeld
-): TActionHeld {
+function addHeld(held: IHeld): TActionHeld {
     return {
         type: ADD_HELD,
         payload: held
     };
 }
 
-function removeHeld(
-    idx: string
-): TActionHeld {
+function removeHeld(idx: string): TActionHeld {
     return {
         type: REMOVE_HELD,
         payload: idx
     };
 }
 
-function setHelden(
-    helden: IHeld[]
-): TActionHeld {
+function setHelden(helden: IHeld[]): TActionHeld {
     return {
         type: SET_HELDEN,
         payload: helden

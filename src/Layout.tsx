@@ -9,9 +9,7 @@ export const Layout: React.FC = () => {
             <Navbar bg="dark" variant="dark">
                 <Container fluid>
                     <LinkContainer to="/">
-                        <Navbar.Brand>
-                            Porta Aitherica
-                        </Navbar.Brand>
+                        <Navbar.Brand>Porta Aitherica</Navbar.Brand>
                     </LinkContainer>
                     <Navbar.Toggle aria-controls="basic-navbar-nav" />
                     <Navbar.Collapse id="basic-navbar-nav">
@@ -28,4 +26,4 @@ export const Layout: React.FC = () => {
             </Container>
         </Fragment>
     );
-}
+};

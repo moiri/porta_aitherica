@@ -10,10 +10,10 @@ interface INewHeldProps {
     onChange: (held: IHeld) => void;
 }
 
-export const NewHeld: React.FC<INewHeldProps> = props => {
+export const NewHeld: React.FC<INewHeldProps> = (props) => {
     const dataHandler = (data: string): string => {
         const parser = new XMLParser({
-            ignoreAttributes : false
+            ignoreAttributes: false
         });
         const result = XMLValidator.validate(data, {
             allowBooleanAttributes: true
@@ -34,10 +34,10 @@ export const NewHeld: React.FC<INewHeldProps> = props => {
                 description="Lade ein XML file der helden software hier hoch."
                 dataHandler={dataHandler}
             />
-            {props.held && (<Held className="mt-3" held={props.held} />)}
+            {props.held && <Held className="mt-3" held={props.held} />}
         </Container>
     );
-}
+};
 
 interface IFileUploadProps {
     label: string;
@@ -48,7 +48,7 @@ interface IFileUploadProps {
     className?: string;
 }
 
-const FileUpload: React.FC<IFileUploadProps> = props => {
+const FileUpload: React.FC<IFileUploadProps> = (props) => {
     enum UploadState {
         NoFile = 0,
         Uploading,

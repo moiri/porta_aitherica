@@ -17,22 +17,19 @@ export const HeldIdx: React.FC = () => {
         if (held) {
             dispatch(heldActions.setHeldState(held['@_key'], 'inactive'));
         }
-    }, [dispatch, held])
+    }, [dispatch, held]);
     if (!held) {
         return null;
     }
-    return (
-        <Held held={held} />
-    );
+    return <Held held={held} />;
 };
-
 
 interface IHeldProps {
     held: IHeld;
     className?: string;
 }
 
-export const Held: React.FC<IHeldProps> = props => {
+export const Held: React.FC<IHeldProps> = (props) => {
     return (
         <Fragment>
             <Card className={props.className}>
@@ -40,7 +37,11 @@ export const Held: React.FC<IHeldProps> = props => {
                     <h3 className="mb-0">
                         {props.held['@_name']}
                         <small className="text-muted ms-3">
-                            {props.held.basis.ausbildungen.ausbildung['@_string']}
+                            {
+                                props.held.basis.ausbildungen.ausbildung[
+                                    '@_string'
+                                ]
+                            }
                         </small>
                     </h3>
                 </Card.Body>
@@ -60,16 +61,17 @@ export const Held: React.FC<IHeldProps> = props => {
                                 </thead>
                                 <tbody>
                                     {props.held.eigenschaften.eigenschaft
-                                        .filter((item: any) => '@_startwert' in item)
-                                        .map((item: any, idx: number) =>
-                                        <tr key={idx}>
-                                            <td>{item['@_name']}</td>
-                                            <td>{item['@_mod']}</td>
-                                            <td>{item['@_startwert']}</td>
-                                            <td>{item['@_value']}</td>
-                                        </tr>
+                                        .filter(
+                                            (item: any) => '@_startwert' in item
                                         )
-                                    }
+                                        .map((item: any, idx: number) => (
+                                            <tr key={idx}>
+                                                <td>{item['@_name']}</td>
+                                                <td>{item['@_mod']}</td>
+                                                <td>{item['@_startwert']}</td>
+                                                <td>{item['@_value']}</td>
+                                            </tr>
+                                        ))}
                                 </tbody>
                             </Table>
                         </Card.Body>
@@ -88,15 +90,17 @@ export const Held: React.FC<IHeldProps> = props => {
                                 </thead>
                                 <tbody>
                                     {props.held.eigenschaften.eigenschaft
-                                        .filter((item: any) => !('@_startwert' in item))
-                                        .map((item: any, idx: number) =>
-                                        <tr key={idx}>
-                                            <td>{item['@_name']}</td>
-                                            <td>{item['@_mod']}</td>
-                                            <td>{item['@_value']}</td>
-                                        </tr>
+                                        .filter(
+                                            (item: any) =>
+                                                !('@_startwert' in item)
                                         )
-                                    }
+                                        .map((item: any, idx: number) => (
+                                            <tr key={idx}>
+                                                <td>{item['@_name']}</td>
+                                                <td>{item['@_mod']}</td>
+                                                <td>{item['@_value']}</td>
+                                            </tr>
+                                        ))}
                                 </tbody>
                             </Table>
                         </Card.Body>
@@ -105,4 +109,4 @@ export const Held: React.FC<IHeldProps> = props => {
             </Row>
         </Fragment>
     );
-}
+};

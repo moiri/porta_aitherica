@@ -5,7 +5,7 @@ export const SELECT_HELD = 'SELECT_HELD';
 export const DESELECT_HELD = 'DESELECT_HELD';
 export const SET_HELD_STATE = 'SET_HELD_STATE';
 
-export type THeldState = 'new' | 'active' | 'inactive'
+export type THeldState = 'new' | 'active' | 'inactive';
 
 interface IActionAddHeld {
     type: typeof ADD_HELD;
@@ -22,7 +22,7 @@ interface IActionSetHeldState {
     payload: {
         id: string;
         state: THeldState;
-    }
+    };
 }
 
 interface IActionSetHelden {
@@ -137,7 +137,7 @@ interface IProbe extends INameField, IValueField {
     '@_probe': string;
 }
 
-interface INameFieldHumanReadable extends INameField{
+interface INameFieldHumanReadable extends INameField {
     '@_string': string;
 }
 

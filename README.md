@@ -5,13 +5,13 @@ A simple tool to assist a dungeon master of the German role-play game "[Das schw
 The tool provides the following functionality:
 
 - Upload an XML file of a hero generated with the [helden tool](https://www.helden-software.de/index.php/download/)
-- Enable/disable hero to assemble a group.
-- Show overview of all active heroes.
+- Enable/disable heroes to assemble a group.
+- Show an overview of all active heroes.
 - Compute probabilities of hero abilities (Talente)
-- Show a graph with a probability trace of success
-   - for each hero
-   - at least one hero
-   - all heroes
+- Show a graph with a probability trace of success for
+    - each hero
+    - at least one hero of the group
+    - all heroes of the group
 
 ## Usage
 
