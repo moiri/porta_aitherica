@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
     Alert,
     Button,
@@ -12,7 +12,8 @@ import { LinkContainer } from 'react-router-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { TRootStore } from '../store/store';
 import { heldActions } from '../store/held';
-import { HeldenSummary, TalentSearch, TalentProbabilities } from './Helden';
+import { HeldenSummary } from './Helden';
+import { TalentProbabilities } from './Talent';
 
 export const Home: React.FC = () => {
     const dispatch = useDispatch();
@@ -26,11 +27,10 @@ export const Home: React.FC = () => {
             <Row className="mb-3">
                 <Col>
                     {heldenActive.length > 0 && (
-                        <Card className="mb-3">
-                            <Card.Body>
-                                <TalentProbabilities helden={heldenActive} />
-                            </Card.Body>
-                        </Card>
+                        <TalentProbabilities
+                            helden={heldenActive}
+                            className="mb-3"
+                        />
                     )}
                     <Card>
                         <Card.Body>
