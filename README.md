@@ -8,10 +8,13 @@ The tool provides the following functionality:
 - Enable/disable heroes to assemble a group.
 - Show an overview of all active heroes.
 - Compute probabilities of hero abilities (Talente)
-- Show a graph with a probability trace of success for
+- Show a chart with a probability trace of success for
     - each hero
     - at least one hero of the group
     - all heroes of the group
+
+Here is an example image of the probability chart:
+![Probability Chart](./screenshots/probabilities.png)
 
 ## Usage
 
