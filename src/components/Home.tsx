@@ -12,7 +12,6 @@ import { LinkContainer } from 'react-router-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { TRootStore } from '../store/store';
 import { heldActions } from '../store/held';
-import { HeldenSummary } from './Helden';
 import { TalentProbabilities } from './Talent';
 
 export const Home: React.FC = () => {
@@ -32,43 +31,42 @@ export const Home: React.FC = () => {
                             className="mb-3"
                         />
                     )}
-                    <Card>
-                        <Card.Body>
-                            {helden.length === 0 && (
-                                <Alert
-                                    variant="warning"
-                                    className="mb-0 d-flex align-items-center"
-                                >
-                                    Es wurden noch keine Helden gespeichert.
-                                    <LinkContainer to="/helden">
-                                        <Button
-                                            variant="warning"
-                                            className="ms-auto"
-                                        >
-                                            Zu den Helden
-                                        </Button>
-                                    </LinkContainer>
-                                </Alert>
-                            )}
-                            {helden.length > 0 && heldenActive.length === 0 && (
-                                <Alert
-                                    variant="dark"
-                                    className="mb-0 d-flex align-items-center"
-                                >
-                                    Es wurden noch keine Helden aktiviert. Zum
-                                    aktivieren, klicke auf einen Helden in der
-                                    Liste{' '}
-                                    <strong className="ms-1">
-                                        Inaktive Helden
-                                    </strong>
-                                    .
-                                </Alert>
-                            )}
-                            {heldenActive.length > 0 && (
-                                <HeldenSummary helden={heldenActive} />
-                            )}
-                        </Card.Body>
-                    </Card>
+                    {heldenActive.length === 0 && (
+                        <Card>
+                            <Card.Body>
+                                {helden.length === 0 && (
+                                    <Alert
+                                        variant="warning"
+                                        className="mb-0 d-flex align-items-center"
+                                    >
+                                        Es wurden noch keine Helden gespeichert.
+                                        <LinkContainer to="/helden">
+                                            <Button
+                                                variant="warning"
+                                                className="ms-auto"
+                                            >
+                                                Zu den Helden
+                                            </Button>
+                                        </LinkContainer>
+                                    </Alert>
+                                )}
+                                {helden.length > 0 && (
+                                    <Alert
+                                        variant="dark"
+                                        className="mb-0 d-flex align-items-center"
+                                    >
+                                        Es wurden noch keine Helden aktiviert.
+                                        Zum aktivieren, klicke auf einen Helden
+                                        in der Liste{' '}
+                                        <strong className="ms-1">
+                                            Inaktive Helden
+                                        </strong>
+                                        .
+                                    </Alert>
+                                )}
+                            </Card.Body>
+                        </Card>
+                    )}
                 </Col>
                 {helden.length > 0 && (
                     <Col sm="auto">

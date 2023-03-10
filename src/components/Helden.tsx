@@ -1,6 +1,13 @@
 import React, { Fragment, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Table, Alert, Modal, Button, ListGroup } from 'react-bootstrap';
+import {
+    ProgressBar,
+    Table,
+    Alert,
+    Modal,
+    Button,
+    ListGroup
+} from 'react-bootstrap';
 import { NewHeld } from './NewHeld';
 import {
     IHeld,
@@ -246,9 +253,46 @@ export const Helden: React.FC = () => {
 
 interface IHeldenSummaryProps {
     helden: IHeld[];
+    probabilities: number[];
 }
 
 export const HeldenSummary: React.FC<IHeldenSummaryProps> = (props) => {
+    if (props.helden.length === 0) {
+        return null;
+    }
+
+    return (
+        <Table striped>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>LE</th>
+                    <th>MR</th>
+                    <th>Erfolgswahrscheinlichkeit</th>
+                </tr>
+            </thead>
+            <tbody>
+                {props.helden.map((held, idx_held) => (
+                    <tr key={idx_held}>
+                        <td>{held['@_name']}</td>
+                        <td>{held.meta.attrExt.LE.value}</td>
+                        <td>{held.meta.attrExt.MR.value}</td>
+                        <td className="align-middle">
+                            <ProgressBar
+                                className="border border-dark"
+                                variant="dark"
+                                now={props.probabilities[idx_held]}
+                                label={`${props.probabilities[idx_held]}%`}
+                            />
+                        </td>
+                    </tr>
+                ))}
+            </tbody>
+        </Table>
+    );
+};
+
+export const HeldenSummaryFull: React.FC<IHeldenSummaryProps> = (props) => {
     if (props.helden.length === 0) {
         return null;
     }

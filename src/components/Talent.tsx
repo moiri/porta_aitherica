@@ -2,16 +2,26 @@ import React, { Fragment, useState, useEffect } from 'react';
 import { Row, Col, Card, Form, Alert, Button, Dropdown } from 'react-bootstrap';
 import { ITalent, IHeld, IAttrBase } from '../store/held';
 import {
-    Chart,
+    Chart as ChartJS,
     CategoryScale,
     LinearScale,
     PointElement,
     LineElement,
+    BarElement,
     Tooltip
 } from 'chart.js';
-import { Line } from 'react-chartjs-2';
+import { Chart } from 'react-chartjs-2';
+import { HeldenSummary } from './Helden';
+import RangeSlider from 'react-bootstrap-range-slider';
 
-Chart.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip);
+ChartJS.register(
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    BarElement,
+    Tooltip
+);
 
 interface ITalentSearchProps {
     helden: IHeld[];
@@ -181,6 +191,7 @@ export const TalentProbabilities: React.FC<ITalentProbabilitiesProps> = (
     ]);
     const [showAtLeastOne, setShowAtleastOne] = useState<boolean>(true);
     const [showAll, setShowAll] = useState<boolean>(true);
+    const [mod, setMod] = useState<number>(0);
     useEffect(() => {
         setShowHelden([...props.helden.map((item) => true)]);
     }, [props.helden]);
@@ -198,7 +209,12 @@ export const TalentProbabilities: React.FC<ITalentProbabilitiesProps> = (
         }
     }, [showHelden]);
     const [talent, setTalent] = useState('');
-    const compute_prob = (e1: number, e2: number, e3: number, pool: number) => {
+    const compute_prob = (
+        e1: number,
+        e2: number,
+        e3: number,
+        pool: number
+    ): number => {
         var possible = 0;
         if (pool < 0) {
             e1 += pool;
@@ -243,7 +259,7 @@ export const TalentProbabilities: React.FC<ITalentProbabilitiesProps> = (
         mod: number,
         tap: number,
         max: number
-    ) => {
+    ): number[] => {
         var prob = [];
         if (tap === 1) {
             tap = 0;
@@ -258,10 +274,14 @@ export const TalentProbabilities: React.FC<ITalentProbabilitiesProps> = (
         return prob;
     };
     const compute_prob_from_talent = (
-        talent: ITalent,
         base: IAttrBase,
-        max: number
-    ) => {
+        max: number,
+        talent?: ITalent
+    ): number[] => {
+        const zeroes = Array(max * 2 + 1).fill(0);
+        if (talent === undefined) {
+            return zeroes;
+        }
         const eigs = talent['@_probe'].match(/\((..)\/(..)\/(..)\)/);
         if (eigs && eigs[1] in base && eigs[2] in base && eigs[3] in base) {
             return compute_prob_arr(
@@ -274,7 +294,7 @@ export const TalentProbabilities: React.FC<ITalentProbabilitiesProps> = (
                 max
             );
         }
-        return 0;
+        return zeroes;
     };
 
     const colors = [
@@ -319,20 +339,21 @@ export const TalentProbabilities: React.FC<ITalentProbabilitiesProps> = (
         (item, idx) => ((max - Math.abs(idx - max)) / max) * 5 + 2
     );
 
+    const probabilities = items.map((item) =>
+        compute_prob_from_talent(item.base, max, item.talent)
+    );
+
     const datasets = items
-        .filter((item, idx) => item.talent !== undefined && showHelden[idx])
         .map((item, idx) => ({
+            type: 'line' as any,
             label: item.name,
-            data: compute_prob_from_talent(
-                item.talent as ITalent,
-                item.base,
-                max
-            ) as number[],
+            data: probabilities[idx],
             borderColor: item.color,
             backgroundColor: item.color,
             fill: false,
             pointRadius: pointRadius
-        }));
+        }))
+        .filter((item, idx) => showHelden[idx]);
 
     const allFail = datasets.reduce(
         (prev, val) =>
@@ -346,6 +367,7 @@ export const TalentProbabilities: React.FC<ITalentProbabilitiesProps> = (
 
     if (showAll) {
         datasets.push({
+            type: 'line',
             label: 'alle Helden',
             data: allSucceed.map((item) => Math.round(item * 100)),
             borderColor: 'grey',
@@ -357,6 +379,7 @@ export const TalentProbabilities: React.FC<ITalentProbabilitiesProps> = (
 
     if (showAtLeastOne) {
         datasets.push({
+            type: 'line',
             label: 'mind 1 Held',
             data: allFail.map((item) => Math.round((1 - item) * 100)),
             borderColor: 'black',
@@ -365,6 +388,18 @@ export const TalentProbabilities: React.FC<ITalentProbabilitiesProps> = (
             pointRadius: pointRadius
         });
     }
+
+    datasets.push({
+        type: 'bar',
+        label: 'Erschwernis',
+        data: Array(2 * max + 1)
+            .fill(0)
+            .map((val, idx) => (idx - max === mod ? 100 : 0)),
+        borderColor: 'black',
+        backgroundColor: '#dcdcdc',
+        fill: false,
+        pointRadius: pointRadius
+    });
 
     const handler = (idx: number) => {
         const newShow = [...showHelden];
@@ -380,6 +415,16 @@ export const TalentProbabilities: React.FC<ITalentProbabilitiesProps> = (
                     helden={props.helden}
                     onSelect={(item) => setTalent(item)}
                 />
+                <Form.Label className="mt-3">Erschwernis</Form.Label>
+                <RangeSlider
+                    tooltip="on"
+                    tooltipPlacement="top"
+                    tooltipLabel={(value) => `${value > 0 ? '+' : ''}${value}`}
+                    min={-max}
+                    max={max}
+                    value={mod}
+                    onChange={(e, value) => setMod(value)}
+                />
             </Col>
             {talent === '' && (
                 <Col>
@@ -392,12 +437,12 @@ export const TalentProbabilities: React.FC<ITalentProbabilitiesProps> = (
                 <Col>
                     <Card>
                         <Card.Body>
-                            <Line
+                            <Chart
+                                type="bar"
                                 className="mt-3"
                                 options={{
-                                    interaction: {
-                                        intersect: false,
-                                        mode: 'index'
+                                    animation: {
+                                        duration: 0
                                     },
                                     scales: {
                                         y: {
@@ -443,6 +488,18 @@ export const TalentProbabilities: React.FC<ITalentProbabilitiesProps> = (
                     </div>
                 </Col>
             )}
+            <Col>
+                <Card>
+                    <Card.Body>
+                        <HeldenSummary
+                            helden={props.helden}
+                            probabilities={probabilities.map(
+                                (items) => items[max + mod]
+                            )}
+                        />
+                    </Card.Body>
+                </Card>
+            </Col>
         </Row>
     );
 };
