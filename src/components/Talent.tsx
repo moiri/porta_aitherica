@@ -348,8 +348,8 @@ export const TalentProbabilities: React.FC<ITalentProbabilitiesProps> = (
         datasets.push({
             label: 'alle Helden',
             data: allSucceed.map((item) => Math.round(item * 100)),
-            borderColor: 'black',
-            backgroundColor: 'black',
+            borderColor: 'grey',
+            backgroundColor: 'grey',
             fill: false,
             pointRadius: pointRadius
         });
@@ -436,7 +436,7 @@ export const TalentProbabilities: React.FC<ITalentProbabilitiesProps> = (
                         ))}
                         <TalentHeldSelector
                             handler={() => setShowAll(!showAll)}
-                            style={getStyle(showAll, 'black')}
+                            style={getStyle(showAll, 'grey')}
                         >
                             Alle Helden
                         </TalentHeldSelector>
