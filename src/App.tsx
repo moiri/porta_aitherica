@@ -6,6 +6,7 @@ import { library, IconPack } from '@fortawesome/fontawesome-svg-core';
 import { Routes, Route } from 'react-router-dom';
 import { Home } from './components/Home';
 import { Helden } from './components/Helden';
+import { Kampf } from './components/Kampf';
 import { HeldIdx } from './components/Held';
 import { Layout } from './Layout';
 
@@ -17,6 +18,7 @@ function App() {
                 <Route index element={<Home />} />
                 <Route path="helden" element={<Helden />} />
                 <Route path="helden/:idx" element={<HeldIdx />} />
+                <Route path="kampf" element={<Kampf />} />
                 <Route path="*" element={<Home />} />
             </Route>
         </Routes>
